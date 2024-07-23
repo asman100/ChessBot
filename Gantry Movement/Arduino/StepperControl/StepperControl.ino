@@ -19,6 +19,11 @@ MultiStepper steppers;
 long posx = 0;
 long posy = 0;
 void setup() {
+  pinMode(X_MIN_PIN, INPUT);
+  pinMode(X_MAX_PIN, INPUT);
+  pinMode(Y_MIN_PIN, INPUT);
+  pinMode(Y_MAX_PIN, INPUT);
+
   Serial.begin(9600);
   stepper.setMaxSpeed(2000);
   stepper.setAcceleration(300);
@@ -36,6 +41,7 @@ void setup() {
 
   steppers.addStepper(stepper);
   steppers.addStepper(stepper2);
+
 }
 
 void loop() {
@@ -69,3 +75,24 @@ void loop() {
     }
   }
 }
+void runToEndstop() {
+  // Set the direction to move the steppers
+  stepper.move(=100000); // Move in positive direction
+  stepper2.move(100000); // Move in positive direction
+
+  // Continuously run the steppers until an endstop is hit
+  while (true) {
+    stepper.run();
+    stepper2.run();
+
+    // Check if any endstop is triggered
+    if (digitalRead(X_MIN_PIN) == LOW || digitalRead(X_MAX_PIN) == LOW || 
+        digitalRead(Y_MIN_PIN) == LOW || digitalRead(Y_MAX_PIN) == LOW) {
+      Serial.println("Endstop hit, stopping steppers");
+      stepper.stop();
+      stepper2.stop();
+      break;
+    }
+  }
+}
+
