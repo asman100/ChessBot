@@ -6,7 +6,7 @@
 #define X_ENABLE_PIN 38
 #define X_MIN_PIN 3
 #define X_MAX_PIN 2
-
+#define LED_PIN            13
 #define Y_STEP_PIN 60
 #define Y_DIR_PIN 61
 #define Y_ENABLE_PIN 56
@@ -23,11 +23,12 @@ long posxmm = 0;
 long posymm = 0;
 
 void setup() {
+  pinMode(LED_PIN, OUTPUT);
   pinMode(X_MIN_PIN, INPUT);
   pinMode(X_MAX_PIN, INPUT);
   pinMode(Y_MIN_PIN, INPUT);
   pinMode(Y_MAX_PIN, INPUT);
-
+  digitalWrite(LED_PIN,HIGH);
   Serial.begin(9600);
   stepper.setMaxSpeed(2000);
   stepper.setAcceleration(300);
@@ -106,33 +107,40 @@ void move(long xPos, long yPos) {
     
   //   // Reset the flag after moving away
   //   flagendstop = false;
-  // } else {
-  //   posx = xPos;
-  //   posy = yPos;
-  //   long currentPos1 = stepper.currentPosition();
-  //   long currentPos2 = stepper2.currentPosition();
-  //   long actualDelta1 = (currentPos1 + currentPos2) / 2;
-  //   long actualDelta2 = (currentPos1 - currentPos2) / 2;
-  //   posxmm = actualDelta1 / 80;
-  //   posymm = actualDelta2 / 80;
+
+  posx = xPos;
+  posy = yPos;
+  long currentPos1 = stepper.currentPosition();
+  long currentPos2 = stepper2.currentPosition();
+  long actualDelta1 = (currentPos1 + currentPos2) / 2;
+  long actualDelta2 = (currentPos1 - currentPos2) / 2;
+  posxmm = actualDelta1 / 80;
+  posymm = actualDelta2 / 80;
   // }
   
   Serial.println("Endeffector at position: " + String(posxmm) + " , " + String(posymm));
 }
 void homing (){
-  stepper.setSpeed(1000);
-  stepper2.setSpeed(-1000);
+  stepper.setSpeed(-2000);
+  stepper2.setSpeed(2000);
   while (digitalRead(X_MIN_PIN) == HIGH){
     stepper.runSpeed();
     stepper2.runSpeed();
   }
+  stepper.stop();
+  stepper2.stop();
+  delay(1000);
   stepper.setSpeed(-1000);
   stepper2.setSpeed(-1000);
   while (digitalRead(Y_MIN_PIN) == HIGH){
     stepper.runSpeed();
     stepper2.runSpeed();
   }
+  stepper.stop();
+  stepper2.stop();
+  delay(1000);
   stepper.setCurrentPosition(0);
   stepper2.setCurrentPosition(0);
+  Serial.println("Homing Done");
 }
 
