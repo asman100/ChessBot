@@ -133,5 +133,6 @@ void homing (){
     stepper2.runSpeed();
   }
   stepper.setCurrentPosition(0);
+  stepper2.setCurrentPosition(0);
 }
 
