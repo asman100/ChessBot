@@ -45,6 +45,7 @@ void setup() {
 
   steppers.addStepper(stepper);
   steppers.addStepper(stepper2);
+  homing();
 }
 
 void loop() {
@@ -76,47 +77,61 @@ void move(long xPos, long yPos) {
   
   while ((stepper.distanceToGo() != 0 || stepper2.distanceToGo() != 0)) {
     steppers.run();
-    if ((digitalRead(X_MIN_PIN) == LOW) && !flagendstop ){
-      stepper.stop();
-      stepper2.stop();
-      delay(100);
-      flagendstop = true;
-      Serial.println("X min Endstop triggered, stopping movement.");
-      break;
-    }
+    // if ((digitalRead(X_MIN_PIN) == LOW) && !flagendstop ){
+    //   stepper.stop();
+    //   stepper2.stop();
+    //   delay(100);
+    //   flagendstop = true;
+    //   Serial.println("X min Endstop triggered, stopping movement.");
+    //   break;
+    // }
   }
   
-  if (flagendstop) {
-    long currentPos1 = stepper.currentPosition();
-    long currentPos2 = stepper2.currentPosition();
-    long actualDelta1 = (currentPos1 + currentPos2) / 2;
-    long actualDelta2 = (currentPos1 - currentPos2) / 2;
-    posxmm = actualDelta1 / 80;
-    posymm = actualDelta2 / 80;
-    posx = stepper.currentPosition();
-    posy = stepper2.currentPosition();
-    Serial.println(posymm);
-    // Move away from the endstop
-    if (digitalRead(X_MIN_PIN) == LOW) {
-      move(0,10);
-    }
-    posx = stepper.currentPosition();
-    posy = stepper2.currentPosition();
+  // if (flagendstop) {
+  //   long currentPos1 = stepper.currentPosition();
+  //   long currentPos2 = stepper2.currentPosition();
+  //   long actualDelta1 = (currentPos1 + currentPos2) / 2;
+  //   long actualDelta2 = (currentPos1 - currentPos2) / 2;
+  //   posxmm = actualDelta1 / 80;
+  //   posymm = actualDelta2 / 80;
+  //   posx = stepper.currentPosition();
+  //   posy = stepper2.currentPosition();
+  //   Serial.println(posymm);
+  //   // Move away from the endstop
+  //   if (digitalRead(X_MIN_PIN) == LOW) {
+  //     move(0,10);
+  //   }
+  //   posx = stepper.currentPosition();
+  //   posy = stepper2.currentPosition();
     
-    // Reset the flag after moving away
-    flagendstop = false;
-  } else {
-    posx = xPos;
-    posy = yPos;
-    long currentPos1 = stepper.currentPosition();
-    long currentPos2 = stepper2.currentPosition();
-    long actualDelta1 = (currentPos1 + currentPos2) / 2;
-    long actualDelta2 = (currentPos1 - currentPos2) / 2;
-    posxmm = actualDelta1 / 80;
-    posymm = actualDelta2 / 80;
-  }
+  //   // Reset the flag after moving away
+  //   flagendstop = false;
+  // } else {
+  //   posx = xPos;
+  //   posy = yPos;
+  //   long currentPos1 = stepper.currentPosition();
+  //   long currentPos2 = stepper2.currentPosition();
+  //   long actualDelta1 = (currentPos1 + currentPos2) / 2;
+  //   long actualDelta2 = (currentPos1 - currentPos2) / 2;
+  //   posxmm = actualDelta1 / 80;
+  //   posymm = actualDelta2 / 80;
+  // }
   
   Serial.println("Endeffector at position: " + String(posxmm) + " , " + String(posymm));
 }
-
+void homing (){
+  stepper.setSpeed(1000);
+  stepper2.setSpeed(-1000);
+  while (digitalRead(X_MIN_PIN) == HIGH){
+    stepper.runSpeed();
+    stepper2.runSpeed();
+  }
+  stepper.setSpeed(-1000);
+  stepper2.setSpeed(-1000);
+  while (digitalRead(Y_MIN_PIN) == HIGH){
+    stepper.runSpeed();
+    stepper2.runSpeed();
+  }
+  stepper.setCurrentPosition(0);
+}
 
