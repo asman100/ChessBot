@@ -1,5 +1,9 @@
 #include "AccelStepper.h"
 #include <MultiStepper.h>
+#include <ros.h>
+#include <std_msgs/Int32.h>
+#include <std_msgs/String.h>
+#include <std_msgs/Bool.h>
 
 #define X_STEP_PIN 54
 #define X_DIR_PIN 55
@@ -15,7 +19,6 @@
 #define Fanpin 9
 #define magnetpin 10
 
-
 AccelStepper stepper(1, X_STEP_PIN, X_DIR_PIN); // 1 = Driver
 AccelStepper stepper2(1, Y_STEP_PIN, Y_DIR_PIN);
 MultiStepper steppers;
@@ -25,6 +28,35 @@ long posy = 0;
 long posxmm = 0;
 long posymm = 0;
 
+ros::NodeHandle nh;
+
+std_msgs::Bool gantry_state_msg;
+ros::Publisher gantry_state_pub("gantrystate", &gantry_state_msg);
+
+// Function to handle magnet control from ROS
+void magnetCallback(const std_msgs::Bool& msg) {
+  if (msg.data) {
+    digitalWrite(magnetpin, HIGH);
+  } else {
+    digitalWrite(magnetpin, LOW);
+  }
+}
+
+ros::Subscriber<std_msgs::Bool> magnet_sub("magnet", &magnetCallback);
+
+// Function to handle position control from ROS
+void positionCallback(const std_msgs::String& msg) {
+  String input = msg.data.c_str();
+  int commaIndex = input.indexOf(',');
+  if (commaIndex > 0) {
+    long x = input.substring(0, commaIndex).toInt();
+    long y = input.substring(commaIndex + 1).toInt();
+    move(x, y);
+  }
+}
+
+ros::Subscriber<std_msgs::String> position_sub("position", &positionCallback);
+
 void setup() {
   pinMode(LED_PIN, OUTPUT);
   pinMode(X_MIN_PIN, INPUT);
@@ -32,10 +64,11 @@ void setup() {
   pinMode(Y_MIN_PIN, INPUT);
   pinMode(Y_MAX_PIN, INPUT);
   pinMode(Fanpin, OUTPUT);
-  pinMode(magnetpin,OUTPUT);
-  digitalWrite(Fanpin,HIGH);
-  digitalWrite(magnetpin,HIGH);
-  digitalWrite(LED_PIN,HIGH);
+  pinMode(magnetpin, OUTPUT);
+  digitalWrite(Fanpin, HIGH);
+  digitalWrite(magnetpin, HIGH);
+  digitalWrite(LED_PIN, HIGH);
+  
   Serial.begin(9600);
   stepper.setMaxSpeed(2000);
   stepper.setAcceleration(300);
@@ -54,20 +87,15 @@ void setup() {
   steppers.addStepper(stepper);
   steppers.addStepper(stepper2);
   homing();
+
+  nh.initNode();
+  nh.subscribe(magnet_sub);
+  nh.subscribe(position_sub);
+  nh.advertise(gantry_state_pub);
 }
 
 void loop() {
-  if (Serial.available() > 0) {
-    String input = Serial.readStringUntil('\n');
-    input.trim();
-    
-    int commaIndex = input.indexOf(',');
-    if (commaIndex > 0) {
-      long x = input.substring(0, commaIndex).toInt();
-      long y = input.substring(commaIndex + 1).toInt();
-      move(x, y);
-    }
-  }
+  nh.spinOnce();  // Handle incoming ROS messages
 }
 
 void move(long xPos, long yPos) {
@@ -85,9 +113,7 @@ void move(long xPos, long yPos) {
   
   while ((stepper.distanceToGo() != 0 || stepper2.distanceToGo() != 0)) {
     steppers.run();
-    
   }
-  
 
   posx = xPos;
   posy = yPos;
@@ -99,11 +125,16 @@ void move(long xPos, long yPos) {
   posymm = actualDelta2 / 80;
   
   Serial.println("Endeffector at position: " + String(posxmm) + " , " + String(posymm));
+
+  // Publish gantry state as "done"
+  gantry_state_msg.data = true;
+  gantry_state_pub.publish(&gantry_state_msg);
 }
-void homing (){
+
+void homing() {
   stepper.setSpeed(-2000);
   stepper2.setSpeed(2000);
-  while (digitalRead(X_MIN_PIN) == HIGH){
+  while (digitalRead(X_MIN_PIN) == HIGH) {
     stepper.runSpeed();
     stepper2.runSpeed();
   }
@@ -112,7 +143,7 @@ void homing (){
   delay(1000);
   stepper.setSpeed(-1000);
   stepper2.setSpeed(-1000);
-  while (digitalRead(Y_MIN_PIN) == HIGH){
+  while (digitalRead(Y_MIN_PIN) == HIGH) {
     stepper.runSpeed();
     stepper2.runSpeed();
   }
@@ -123,4 +154,3 @@ void homing (){
   stepper2.setCurrentPosition(0);
   Serial.println("Homing Done");
 }
-
