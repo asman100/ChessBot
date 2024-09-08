@@ -1,0 +1,8 @@
+prefix=/home/speed/ChessBot/catkinws/devel
+
+Name: ChessBot
+Description: Description of ChessBot
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
