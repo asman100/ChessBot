@@ -30,7 +30,7 @@ long posymm = 0;
 
 ros::NodeHandle nh;
 
-std_msgs::Bool gantry_state_msg;
+std_msgs::String gantry_state_msg;
 ros::Publisher gantry_state_pub("gantrystate", &gantry_state_msg);
 
 // Function to handle magnet control from ROS
@@ -127,7 +127,7 @@ void move(long xPos, long yPos) {
   Serial.println("Endeffector at position: " + String(posxmm) + " , " + String(posymm));
 
   // Publish gantry state as "done"
-  gantry_state_msg.data = true;
+  gantry_state_msg.data = "Done";
   gantry_state_pub.publish(&gantry_state_msg);
 }
 
@@ -153,4 +153,7 @@ void homing() {
   stepper.setCurrentPosition(0);
   stepper2.setCurrentPosition(0);
   Serial.println("Homing Done");
+  gantry_state_msg.data = "Homing Done";
+  gantry_state_pub.publish(&gantry_state_msg);
+
 }
