@@ -46,7 +46,7 @@ ros::Subscriber<std_msgs::Bool> magnet_sub("magnet", &magnetCallback);
 
 // Function to handle position control from ROS
 void positionCallback(const std_msgs::String& msg) {
-  String input = msg.data.c_str();
+  String input = msg.data;
   int commaIndex = input.indexOf(',');
   if (commaIndex > 0) {
     long x = input.substring(0, commaIndex).toInt();
@@ -66,7 +66,7 @@ void setup() {
   pinMode(Fanpin, OUTPUT);
   pinMode(magnetpin, OUTPUT);
   digitalWrite(Fanpin, HIGH);
-  digitalWrite(magnetpin, HIGH);
+  digitalWrite(magnetpin, LOW);
   digitalWrite(LED_PIN, HIGH);
   
   Serial.begin(9600);
