@@ -86,12 +86,14 @@ void setup() {
 
   steppers.addStepper(stepper);
   steppers.addStepper(stepper2);
-  homing();
 
   nh.initNode();
   nh.subscribe(magnet_sub);
   nh.subscribe(position_sub);
   nh.advertise(gantry_state_pub);
+  homing();
+  move(10,200);
+
 }
 
 void loop() {
@@ -156,6 +158,7 @@ void homing() {
   delay(1000);
   stepper.setCurrentPosition(0);
   stepper2.setCurrentPosition(0);
+
   Serial.println("Homing Done");
   gantry_state_msg.data = "Homing Done";
   gantry_state_pub.publish(&gantry_state_msg);

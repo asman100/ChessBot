@@ -8,6 +8,7 @@ position_pub = rospy.Publisher("/position", String, queue_size=10)
 bot_status_pub = rospy.Publisher("/botmovestatus", String, queue_size=10)
 botstate = "Idle"
 capture = False
+Home = f"{10},{200}"
 
 
 def gantry_state_callback(msg):
@@ -94,6 +95,7 @@ def moveplanner(botmove):
         pass
     rospy.sleep(10)
     control_magnet(False)
+    move_gantry(Home)
     botstate = "Idle"
     bot_status_pub.publish("confirmed")
 
