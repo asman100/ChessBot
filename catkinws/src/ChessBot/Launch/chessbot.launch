@@ -10,15 +10,15 @@
     <param name="port" value="/dev/ttyACM0" />
     <param name="baud" value="115200" /> <!-- Adjust baud rate as necessary -->
   </node>
-
+<node name="Mega" pkg="rosserial_python" type="serial_node.py" output="screen">
+    <param name="port" value="/dev/ttyACM2" />
+    <param name="baud" value="57600" /> <!-- Adjust baud rate as necessary -->
+  </node>
   <!-- Launch the rosserial node for the R4 device -->
   <node name="R4" pkg="rosserial_python" type="serial_node.py" output="screen">
     <param name="port" value="/dev/ttyACM1" />
     <param name="baud" value="9600" /> <!-- Adjust baud rate as necessary -->
   </node>
-  <node name="Mega" pkg="rosserial_python" type="serial_node.py" output="screen">
-    <param name="port" value="/dev/ttyACM2" />
-    <param name="baud" value="9600" /> <!-- Adjust baud rate as necessary -->
-  </node>
+  
 </launch>
 
