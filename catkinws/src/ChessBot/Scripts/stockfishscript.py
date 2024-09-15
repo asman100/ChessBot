@@ -18,7 +18,9 @@ endgame_pub = rospy.Publisher(
 gamestatus_pub = rospy.Publisher("gamestatus", String, queue_size=10)
 endturn_pub = rospy.Publisher("end_turn", String, queue_size=10)
 # Stockfish engine setup
-engine_path = "/home/thabet/Stockfish/src/stockfish"  # Change this to the correct path
+engine_path = (
+    "/home/speed/stockfish/Stockfish/src/stockfish"  # Change this to the correct path
+)
 engine = chess.engine.SimpleEngine.popen_uci(engine_path)
 
 # Variables for managing player color, game state, difficulty, and bot move confirmation
