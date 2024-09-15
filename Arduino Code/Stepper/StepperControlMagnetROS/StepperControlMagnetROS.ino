@@ -101,9 +101,9 @@ void loop() {
 }
 
 void move(long xPos, long yPos) {
-  stepper.setMaxSpeed(10000);
+  stepper.setMaxSpeed(8000);
   stepper.setAcceleration(5000);
-  stepper2.setMaxSpeed(10000);
+  stepper2.setMaxSpeed(8000);
   stepper2.setAcceleration(5000);
   xPos *= 80;
   yPos *= 80;
