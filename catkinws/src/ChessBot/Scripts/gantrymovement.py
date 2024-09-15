@@ -51,9 +51,10 @@ def moveplanner(botmove):
         return
 
     botstate = "Moving"
+    goal = pos[1]
+    start = pos[0]
     if capture:
-        goal = pos[1]
-        start = pos[0]
+
         goal_string = f"{goal[0]},{goal[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
