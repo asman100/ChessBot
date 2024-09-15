@@ -71,14 +71,14 @@ def moveplanner(botmove):
         while botstate == "Moving":
             pass
         control_magnet(False)
-        rospy.sleep(10)
+        rospy.sleep(2)
 
     goal_string = f"{start[0]},{start[1]}"
     move_gantry(goal_string)
     while botstate == "Moving":
         pass
     control_magnet(True)
-    rospy.sleep(10)
+    rospy.sleep(2)
     goal_string = f"{start[0]+25},{start[1]}"
     move_gantry(goal_string)
     while botstate == "Moving":
@@ -95,7 +95,7 @@ def moveplanner(botmove):
     move_gantry(goal_string)
     while botstate == "Moving":
         pass
-    rospy.sleep(10)
+    rospy.sleep(2)
     control_magnet(False)
     move_gantry(Home)
     botstate = "Idle"
