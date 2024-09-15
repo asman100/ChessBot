@@ -93,6 +93,7 @@ def moveplanner(botmove):
     move_gantry(goal_string)
     while botstate == "Moving":
         pass
+    rospy.sleep(10)
     control_magnet(False)
     botstate = "Idle"
     bot_status_pub.publish("confirmed")
