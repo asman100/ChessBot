@@ -2,7 +2,7 @@
 <!-- Launch 2 Arduino boards -->
         <!-- Launch stockfishscript.py -->
     <node name="stockfish" pkg="ChessBot" type="stockfishscript" output="screen" />
-    <node name="stockfish" pkg="ChessBot" type="gantrymovement" output="screen" />
+    <node name="gantry" pkg="ChessBot" type="gantrymovement" output="screen" />
 
     <!-- Launch testmovedetect.py -->
     <node name="movedetect" pkg="ChessBot" type="movedetection" output="screen" />
