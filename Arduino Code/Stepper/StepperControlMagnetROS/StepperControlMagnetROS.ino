@@ -101,10 +101,10 @@ void loop() {
 }
 
 void move(long xPos, long yPos) {
-  stepper.setMaxSpeed(5000);
-  stepper.setAcceleration(2000);
-  stepper2.setMaxSpeed(5000);
-  stepper2.setAcceleration(2000);
+  stepper.setMaxSpeed(10000);
+  stepper.setAcceleration(5000);
+  stepper2.setMaxSpeed(10000);
+  stepper2.setAcceleration(5000);
   xPos *= 80;
   yPos *= 80;
   long delta1 = (xPos - posx) + (yPos - posy);
