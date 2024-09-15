@@ -69,7 +69,7 @@ void setup() {
   digitalWrite(magnetpin, LOW);
   digitalWrite(LED_PIN, HIGH);
   
-  Serial.begin(9600);
+  Serial.begin(57600);
   stepper.setMaxSpeed(2000);
   stepper.setAcceleration(300);
 
@@ -77,7 +77,7 @@ void setup() {
   stepper.setPinsInverted(false, false, true); // Invert logic of enable pin
   stepper.enableOutputs();
 
-  stepper2.setMaxSpeed(1000);
+  stepper2.setMaxSpeed(2000);
   stepper2.setAcceleration(300);
 
   stepper2.setEnablePin(Y_ENABLE_PIN);
@@ -99,6 +99,10 @@ void loop() {
 }
 
 void move(long xPos, long yPos) {
+  stepper.setMaxSpeed(5000);
+  stepper.setAcceleration(2000);
+  stepper2.setMaxSpeed(5000);
+  stepper2.setAcceleration(2000);
   xPos *= 80;
   yPos *= 80;
   long delta1 = (xPos - posx) + (yPos - posy);
