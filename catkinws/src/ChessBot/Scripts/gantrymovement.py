@@ -21,9 +21,9 @@ def gantry_state_callback(msg):
         rospy.loginfo("Movement operation is complete.")
 
 
-def move_gantry(x, y):
+def move_gantry(goal):
     # Function to publish the gantry position
-    position_command = f"{x},{y}"
+    position_command = goal
     rospy.loginfo(f"Moving gantry to position: {position_command}")
     position_pub.publish(position_command)
 
