@@ -1,11 +1,11 @@
 <launch>
 <!-- Launch 2 Arduino boards -->
         <!-- Launch stockfishscript.py -->
-    <node name="stockfish" pkg="ChessBot" type="stockfishscript" output="screen" />
-    <node name="gantry" pkg="ChessBot" type="gantrymovement" output="screen" />
+    <node name="stockfish" pkg="ChessBot" type="stockfishscript.py" output="screen" />
+    <node name="gantry" pkg="ChessBot" type="gantrymovement.py" output="screen" />
 
     <!-- Launch testmovedetect.py -->
-    <node name="movedetect" pkg="ChessBot" type="movedetection" output="screen" />
+    <node name="movedetect" pkg="ChessBot" type="movedetection.py" output="screen" />
     <node name="Giga" pkg="rosserial_python" type="serial_node.py" output="screen">
     <param name="port" value="/dev/ttyACM0" />
     <param name="baud" value="115200" /> <!-- Adjust baud rate as necessary -->
