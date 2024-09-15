@@ -76,7 +76,6 @@ def moveplanner(botmove):
     while botstate == "Moving":
         pass
     control_magnet(True)
-    rospy.sleep(1)
     goal_string = f"{start[0]+25},{start[1]}"
     move_gantry(goal_string)
     while botstate == "Moving":
