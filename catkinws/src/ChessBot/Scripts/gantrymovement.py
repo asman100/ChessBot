@@ -121,7 +121,8 @@ def posextractor(move):
 
 
 def chess_position_to_coordinates(pos):
-    J = 25
+    J = 25 + 50
+    Z = 25 + 80
     # Map the file (column) letters to x-axis positions (starting from 'h' as 0)
     file_map = {"a": 7, "b": 6, "c": 5, "d": 4, "e": 3, "f": 2, "g": 1, "h": 0}
 
@@ -135,7 +136,7 @@ def chess_position_to_coordinates(pos):
 
     # Add the constant offset J to both x and y
     x += J
-    y += J
+    y += Z
 
     return [x, y]
 
