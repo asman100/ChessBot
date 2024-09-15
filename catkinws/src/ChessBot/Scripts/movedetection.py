@@ -321,9 +321,13 @@ def chessboard_callback(data):
     global removed_white_pieces, removed_white_positions
     global removed_black_pieces, removed_black_positions
     global game_started
+    sensor_array = data.data
+    new_board_state = [sensor_array[i : i + 8] for i in range(0, 64, 8)]
+
     if not game_started:
         rospy.logwarn("Game has not started yet!")
-        piece_board = [
+        # Initialize the starting positions
+        initial_piece_board = [
             ["r", "n", "b", "q", "k", "b", "n", "r"],  # Black pieces (row 8)
             ["p", "p", "p", "p", "p", "p", "p", "p"],  # Black pawns (row 7)
             [" ", " ", " ", " ", " ", " ", " ", " "],  # Empty row 6
@@ -333,8 +337,24 @@ def chessboard_callback(data):
             ["P", "P", "P", "P", "P", "P", "P", "P"],  # White pawns (row 2)
             ["R", "N", "B", "Q", "K", "B", "N", "R"],  # White pieces (row 1)
         ]
-    sensor_array = data.data
-    new_board_state = [sensor_array[i : i + 8] for i in range(0, 64, 8)]
+
+        piece_board = []
+        for row in range(8):
+            piece_row = []
+            for col in range(8):
+                if new_board_state[row][col] == 1:
+                    # Piece is present at this location
+                    piece_row.append(initial_piece_board[row][col])
+                else:
+                    # No piece present at this location
+                    piece_row.append(" ")
+            piece_board.append(piece_row)
+        # Publish the piece_board
+        publish_piece_board()
+        # Update saved_board_state
+        saved_board_state = new_board_state
+        print_board(piece_board)
+        return  # Exit the function since the game hasn't started yet
 
     for row in range(8):
         for col in range(8):
