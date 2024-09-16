@@ -55,7 +55,10 @@ def moveplanner(botmove):
     goal = pos[1]
     start = pos[0]
     if capture:
-
+        goal_string = f"{10},{goal[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
         goal_string = f"{goal[0]},{goal[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
@@ -72,34 +75,66 @@ def moveplanner(botmove):
             pass
         control_magnet(False)
         rospy.sleep(2)
+        goal_string = f"{start[0]},{start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        control_magnet(True)
+        rospy.sleep(2)
+        goal_string = f"{start[0]+25},{start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        goal_string = f"{start[0]+25},{goal[1]+25}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        goal_string = f"{goal[0]},{goal[1]+25}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        goal_string = f"{goal[0]},{goal[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        control_magnet(False)
+        move_gantry(Home)
+        botstate = "Idle"
+        bot_status_pub.publish("confirmed")
 
-    goal_string = f"{start[0]},{start[1]}"
-    move_gantry(goal_string)
-    while botstate == "Moving":
-        pass
-    control_magnet(True)
-    rospy.sleep(2)
-    goal_string = f"{start[0]+25},{start[1]}"
-    move_gantry(goal_string)
-    while botstate == "Moving":
-        pass
-    goal_string = f"{start[0]+25},{goal[1]+25}"
-    move_gantry(goal_string)
-    while botstate == "Moving":
-        pass
-    goal_string = f"{goal[0]},{goal[1]+25}"
-    move_gantry(goal_string)
-    while botstate == "Moving":
-        pass
-    goal_string = f"{goal[0]},{goal[1]}"
-    move_gantry(goal_string)
-    while botstate == "Moving":
-        pass
-    rospy.sleep(2)
-    control_magnet(False)
-    move_gantry(Home)
-    botstate = "Idle"
-    bot_status_pub.publish("confirmed")
+    else:
+        goal_string = f"{10},{start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        goal_string = f"{start[0]},{start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        control_magnet(True)
+        rospy.sleep(2)
+        goal_string = f"{start[0]+25},{start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        goal_string = f"{start[0]+25},{goal[1]+25}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        goal_string = f"{goal[0]},{goal[1]+25}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        goal_string = f"{goal[0]},{goal[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        control_magnet(False)
+        move_gantry(Home)
+        botstate = "Idle"
+        bot_status_pub.publish("confirmed")
 
 
 def posextractor(move):
