@@ -107,6 +107,7 @@ def moveplanner(botmove):
             pass
         rospy.sleep(2)
         control_magnet(False)
+        rospy.sleep(2)
         move_gantry(Home)
         botstate = "Idle"
         bot_status_pub.publish("confirmed")
@@ -144,6 +145,7 @@ def moveplanner(botmove):
             pass
         rospy.sleep(2)
         control_magnet(False)
+        rospy.sleep(2)
         move_gantry(Home)
         botstate = "Idle"
         bot_status_pub.publish("confirmed")
