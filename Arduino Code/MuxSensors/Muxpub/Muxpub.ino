@@ -44,7 +44,7 @@ void setup() {
 
 void loop() {
   digitalWrite(2,LOW);
-  delay(1000);
+  delay(500);
   digitalWrite(2,HIGH);
   // Iterate through each board and populate the sensorArray
   for (int board = 1; board <= 4; board++) {
@@ -74,7 +74,7 @@ void loop() {
   // Spin the ROS node
   nh.spinOnce();
 
-  delay(1000); // Delay before rechecking
+  
 }
 
 void selectBoard(int board) {
