@@ -175,10 +175,10 @@ def make_bot_move():
         chess_board, chess.engine.Limit(time=2.0)
     )  # Bot move with 2 seconds of analysis
     bot_move = result.move
-
-    rospy.loginfo(f"Bot move: {bot_move.uci()}")
+    is_capture = chess_board.is_capture(bot_move)
+    rospy.loginfo(f"Bot move: {bot_move.uci()} (Capture: {is_capture})")
     bot_move_pub.publish(
-        bot_move.uci()
+        f"{bot_move.uci()} {is_capture}"
     )  # Publish the move, but don't apply it to the board yet
 
     # Wait for external confirmation of the bot's move
