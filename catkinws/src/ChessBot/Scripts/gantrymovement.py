@@ -59,40 +59,48 @@ def moveplanner(botmove):
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{goal[0]},{goal[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         control_magnet(True)
         rospy.sleep(1)
         goal_string = f"{goal[0]},{goal[1]+25}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{0},{goal[1]+25}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         control_magnet(False)
         rospy.sleep(2)
         goal_string = f"{start[0]},{start[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         control_magnet(True)
         rospy.sleep(2)
         goal_string = f"{start[0]+25},{start[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{start[0]+25},{goal[1]+25}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{goal[0]},{goal[1]+25}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{goal[0]},{goal[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
@@ -108,6 +116,7 @@ def moveplanner(botmove):
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{start[0]},{start[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
@@ -118,14 +127,17 @@ def moveplanner(botmove):
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{start[0]+25},{goal[1]+25}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{goal[0]},{goal[1]+25}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         goal_string = f"{goal[0]},{goal[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
