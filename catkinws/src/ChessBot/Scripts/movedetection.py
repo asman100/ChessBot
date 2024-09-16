@@ -323,7 +323,8 @@ def chessboard_callback(data):
     global game_started
     sensor_array = data.data
     new_board_state = [sensor_array[i : i + 8] for i in range(0, 64, 8)]
-
+    rospy.loginfo("New board state detected:")
+    print_boardstate(new_board_state)
     if not game_started:
         rospy.logwarn("Game has not started yet!")
         # Initialize the starting positions
@@ -431,6 +432,12 @@ def endgame_callback(msg):
     # Any message on the endgame topic triggers a reset of the game state
     rospy.loginfo("Endgame detected. Resetting game state.")
     reset_game_state()
+
+
+def print_boardstate(board):
+    for row in board:
+        print(row)
+    print("\n")
 
 
 def print_board(board):
