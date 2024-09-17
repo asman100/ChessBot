@@ -41,7 +41,16 @@ void magnetCallback(const std_msgs::Bool& msg) {
     digitalWrite(magnetpin, LOW);
   }
 }
+enum HomingState {
+  HOMING_NONE,
+  HOMING_X,
+  HOMING_X_DELAY,
+  HOMING_Y,
+  HOMING_Y_DELAY,
+  HOMING_DONE
+};
 
+HomingState homingState = HOMING_NONE;
 ros::Subscriber<std_msgs::Bool> magnet_sub("magnet", &magnetCallback);
 
 // Function to handle position control from ROS
@@ -62,16 +71,7 @@ void positionCallback(const std_msgs::String& msg) {
 ros::Subscriber<std_msgs::String> position_sub("position", &positionCallback);
 
 // Homing state machine variables
-enum HomingState {
-  HOMING_NONE,
-  HOMING_X,
-  HOMING_X_DELAY,
-  HOMING_Y,
-  HOMING_Y_DELAY,
-  HOMING_DONE
-};
 
-HomingState homingState = HOMING_NONE;
 unsigned long homingStartTime = 0;
 bool homingInitialized = false;
 
