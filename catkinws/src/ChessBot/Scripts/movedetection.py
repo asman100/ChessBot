@@ -138,7 +138,12 @@ def end_turn_callback(data):
         rospy.logwarn("Game has not started yet!")
         return
     print_board(piece_board)
+
     if data.data:
+        # Store temporary copies of old_piece_board and piece_board
+        temp_old_piece_board = [row[:] for row in old_piece_board]
+        temp_piece_board = [row[:] for row in piece_board]
+
         # Detect castling
         uci_move = detect_castling()
 
@@ -148,17 +153,13 @@ def end_turn_callback(data):
         else:
             # Detect and validate a normal move
             uci_move = detect_move_uci()
-            temp_old_piece_board = [row[:] for row in old_piece_board]
             old_piece_board = [row[:] for row in piece_board]
 
         # Publish the detected UCI move
         if uci_move:
             rospy.loginfo(f"Published move: {uci_move}")
-            # **Update old_piece_board immediately after publishing the move**
             move_validated = None
             move_pub.publish(uci_move)
-
-            # Reset move validation result and wait for response
 
             rospy.loginfo("Waiting for move validation...")
 
@@ -167,14 +168,14 @@ def end_turn_callback(data):
                 rospy.sleep(0.01)
             if move_validated == "valid":
                 rospy.loginfo(f"Move {uci_move} was valid!")
-                old_piece_board = [row[:] for row in piece_board]
+                # No need to restore piece_board; the move is valid
                 current_turn = "b" if current_turn == "w" else "w"
                 rospy.loginfo(f"Current turn: {current_turn}")
 
-            # If the move is invalid, log a warning
             elif move_validated == "invalid":
                 rospy.logwarn(f"Move {uci_move} was invalid!")
-                # Optionally revert the move on `piece_board` if needed
+                # Restore piece_board to its previous state
+                piece_board = [row[:] for row in temp_piece_board]
                 old_piece_board = [row[:] for row in temp_old_piece_board]
         else:
             rospy.logwarn("No valid move detected!")
