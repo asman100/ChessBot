@@ -37,7 +37,7 @@ void setup() {
   digitalWrite(s1, LOW);  
   digitalWrite(s2, LOW);
   digitalWrite(s3, LOW);
-  Serial.begin(9600);
+  Serial.begin(115200);
   chessboard_msg.data_length = 64;  // 8x8 array = 64 values
   chessboard_msg.data = new int32_t[64];
 }
