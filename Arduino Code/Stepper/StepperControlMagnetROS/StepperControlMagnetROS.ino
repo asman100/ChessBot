@@ -69,7 +69,7 @@ void setup() {
   digitalWrite(magnetpin, LOW);
   digitalWrite(LED_PIN, HIGH);
   
-  Serial.begin(57600);
+  Serial.begin(115200);
   stepper.setMaxSpeed(2000);
   stepper.setAcceleration(300);
 
