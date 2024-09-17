@@ -181,6 +181,7 @@ void handleHoming() {
         gantry_state_pub.publish(&gantry_state_msg);
         homingState = HOMING_DONE;
         homingInitialized = false;
+        move(10,200); 
       }
       break;
 
