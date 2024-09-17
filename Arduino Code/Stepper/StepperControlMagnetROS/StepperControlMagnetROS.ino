@@ -46,6 +46,10 @@ ros::Subscriber<std_msgs::Bool> magnet_sub("magnet", &magnetCallback);
 
 // Function to handle position control from ROS
 void positionCallback(const std_msgs::String& msg) {
+  if (homingState != HOMING_DONE) {
+    // Ignore move commands until homing is complete
+    return;
+  }
   String input = msg.data;
   int commaIndex = input.indexOf(',');
   if (commaIndex > 0) {
@@ -57,12 +61,26 @@ void positionCallback(const std_msgs::String& msg) {
 
 ros::Subscriber<std_msgs::String> position_sub("position", &positionCallback);
 
+// Homing state machine variables
+enum HomingState {
+  HOMING_NONE,
+  HOMING_X,
+  HOMING_X_DELAY,
+  HOMING_Y,
+  HOMING_Y_DELAY,
+  HOMING_DONE
+};
+
+HomingState homingState = HOMING_NONE;
+unsigned long homingStartTime = 0;
+bool homingInitialized = false;
+
 void setup() {
   pinMode(LED_PIN, OUTPUT);
-  pinMode(X_MIN_PIN, INPUT);
-  pinMode(X_MAX_PIN, INPUT);
-  pinMode(Y_MIN_PIN, INPUT);
-  pinMode(Y_MAX_PIN, INPUT);
+  pinMode(X_MIN_PIN, INPUT_PULLUP);
+  pinMode(X_MAX_PIN, INPUT_PULLUP);
+  pinMode(Y_MIN_PIN, INPUT_PULLUP);
+  pinMode(Y_MAX_PIN, INPUT_PULLUP);
   pinMode(Fanpin, OUTPUT);
   pinMode(magnetpin, OUTPUT);
   digitalWrite(Fanpin, HIGH);
@@ -91,16 +109,92 @@ void setup() {
   nh.subscribe(magnet_sub);
   nh.subscribe(position_sub);
   nh.advertise(gantry_state_pub);
-  homing();
-  move(10,200);
 
+  homingState = HOMING_X; // Start the homing process
+  homingInitialized = false;
 }
 
 void loop() {
   nh.spinOnce();  // Handle incoming ROS messages
+
+  if (homingState != HOMING_NONE && homingState != HOMING_DONE) {
+    handleHoming();
+  } else {
+    // Other code can be placed here
+  }
+}
+
+void handleHoming() {
+  switch (homingState) {
+    case HOMING_X:
+      if (!homingInitialized) {
+        // Initialize homing X-axis
+        stepper.setSpeed(-2000);  // Move towards X_MIN_PIN
+        stepper2.setSpeed(2000);  // Move in positive direction
+        homingInitialized = true;
+      }
+      stepper.runSpeed();
+      stepper2.runSpeed();
+      if (digitalRead(X_MIN_PIN) == LOW) {
+        // X-axis homing complete
+        stepper.stop();
+        stepper2.stop();
+        homingStartTime = millis(); // Record time for delay
+        homingState = HOMING_X_DELAY;
+        homingInitialized = false;
+      }
+      break;
+
+    case HOMING_X_DELAY:
+      if (millis() - homingStartTime >= 1000) {
+        homingState = HOMING_Y;
+        homingInitialized = false;
+      }
+      break;
+
+    case HOMING_Y:
+      if (!homingInitialized) {
+        // Initialize homing Y-axis
+        stepper.setSpeed(-1000);  // Move towards Y_MIN_PIN
+        stepper2.setSpeed(-1000); // Move towards Y_MIN_PIN
+        homingInitialized = true;
+      }
+      stepper.runSpeed();
+      stepper2.runSpeed();
+      if (digitalRead(Y_MIN_PIN) == LOW) {
+        // Y-axis homing complete
+        stepper.stop();
+        stepper2.stop();
+        homingStartTime = millis(); // Record time for delay
+        homingState = HOMING_Y_DELAY;
+        homingInitialized = false;
+      }
+      break;
+
+    case HOMING_Y_DELAY:
+      if (millis() - homingStartTime >= 1000) {
+        // Finalize homing
+        stepper.setCurrentPosition(0);
+        stepper2.setCurrentPosition(0);
+        Serial.println("Homing Done");
+        gantry_state_msg.data = "Homing Done";
+        gantry_state_pub.publish(&gantry_state_msg);
+        homingState = HOMING_DONE;
+        homingInitialized = false;
+      }
+      break;
+
+    default:
+      break;
+  }
 }
 
 void move(long xPos, long yPos) {
+  if (homingState != HOMING_DONE) {
+    // Cannot move until homing is complete
+    return;
+  }
+
   stepper.setMaxSpeed(5000);
   stepper.setAcceleration(200);
   stepper2.setMaxSpeed(5000);
@@ -119,6 +213,7 @@ void move(long xPos, long yPos) {
   
   while ((stepper.distanceToGo() != 0 || stepper2.distanceToGo() != 0)) {
     steppers.run();
+    nh.spinOnce();  // Keep handling ROS messages
   }
 
   posx = xPos;
@@ -132,35 +227,7 @@ void move(long xPos, long yPos) {
   
   Serial.println("Endeffector at position: " + String(posxmm) + " , " + String(posymm));
 
-  // Publish gantry state as "done"
+  // Publish gantry state as "Done"
   gantry_state_msg.data = "Done";
   gantry_state_pub.publish(&gantry_state_msg);
-}
-
-void homing() {
-  stepper.setSpeed(-2000);
-  stepper2.setSpeed(2000);
-  while (digitalRead(X_MIN_PIN) == HIGH) {
-    stepper.runSpeed();
-    stepper2.runSpeed();
-  }
-  stepper.stop();
-  stepper2.stop();
-  delay(1000);
-  stepper.setSpeed(-1000);
-  stepper2.setSpeed(-1000);
-  while (digitalRead(Y_MIN_PIN) == HIGH) {
-    stepper.runSpeed();
-    stepper2.runSpeed();
-  }
-  stepper.stop();
-  stepper2.stop();
-  delay(1000);
-  stepper.setCurrentPosition(0);
-  stepper2.setCurrentPosition(0);
-
-  Serial.println("Homing Done");
-  gantry_state_msg.data = "Homing Done";
-  gantry_state_pub.publish(&gantry_state_msg);
-
 }
