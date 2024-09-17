@@ -73,9 +73,11 @@ def move_callback(msg):
         else:
             rospy.logerr(f"Move {uci_move} is invalid.")
             move_validation_pub.publish("invalid")
+            gamestatus_pub.publish("Invalid Move")
     except ValueError:
         rospy.logerr(f"Invalid UCI format: {uci_move}")
         move_validation_pub.publish("invalid")
+        gamestatus_pub.publish("Please Make Sure Piece is detected Properly")
 
 
 def game_status():
@@ -113,6 +115,7 @@ def player_color_callback(msg):
         gamestatus_pub.publish("Your Playing as White")
     else:
         gamestatus_pub.publish("Your Playing as Black")
+        make_bot_move()
     # gamestatus_pub.publish(player_color)
     rospy.loginfo(f"Player color set to: {player_color}")
 
