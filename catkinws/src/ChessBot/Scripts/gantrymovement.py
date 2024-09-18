@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import Bool, String, Int8MultiArray
+from std_msgs.msg import Bool, String, Int32MultiArray
 import threading
 
 magnet_pub = rospy.Publisher("/magnet", Bool, queue_size=10)
@@ -21,7 +21,8 @@ def sensor_array_callback(msg):
     data = msg.data
     with sensor_lock:
         # Convert flat list to 8x8 grid
-        sensor_readings = [data[i * 8 : (i + 1) * 8] for i in range(8)]
+
+        sensor_readings = [data[i : i + 8] for i in range(0, 64, 8)]
 
 
 def check_piece_placement(square):
@@ -257,7 +258,7 @@ def main():
     rospy.init_node("gantry_controller", anonymous=True)
     rospy.Subscriber("/gantrystate", String, gantry_state_callback)
     rospy.Subscriber("/botmoves", String, botmove_callback)
-    rospy.Subscriber("/sensor_array", Int8MultiArray, sensor_array_callback)
+    rospy.Subscriber("/chessboard", Int32MultiArray, sensor_array_callback)
     rospy.sleep(2)
     rospy.spin()
 
