@@ -27,7 +27,9 @@ def sensor_array_callback(msg):
 def check_piece_placement(square):
     with sensor_lock:
         x, y = chess_square_to_indices(square)
+        rospy.loginfo(f"Checking sensor value at {square} ({x}, {y})")
         sensor_value = sensor_readings[y][x]
+        rospy.loginfo(f"Sensor value at {square}: {sensor_value}")
     return sensor_value == 1
 
 
