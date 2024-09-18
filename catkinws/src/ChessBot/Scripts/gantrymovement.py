@@ -75,7 +75,7 @@ def botmove_callback(msg):
 
 def attempt_piece_placement(goal_pos, end_square):
     max_attempts = 5
-    step_size = 1  # Adjust step size as needed
+    step_size = 10  # Adjust step size as needed
     x0, y0 = goal_pos[0], goal_pos[1]
     offsets = [
         (0, 0),
