@@ -36,7 +36,7 @@ def check_piece_placement(square):
 
 def chess_square_to_indices(square):
     # Adjust the mapping based on your board orientation
-    file_map = {"a": 7, "b": 6, "c": 5, "d": 4, "e": 3, "f": 2, "g": 1, "h": 0}
+    file_map = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     file = square[0]
     rank = int(square[1]) - 1
     x = file_map[file]
@@ -120,7 +120,8 @@ def moveplanner(botmove):
     if botstate != "Idle":
         rospy.logwarn("Gantry is busy. Ignoring bot move command.")
         return
-
+    control_magnet(False)
+    rospy.sleep(2)
     botstate = "Moving"
     goal = pos[1]
     start = pos[0]
