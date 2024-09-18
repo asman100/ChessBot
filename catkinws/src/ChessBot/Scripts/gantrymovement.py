@@ -105,7 +105,7 @@ def attempt_piece_placement(goal_pos, end_square):
             return True
         else:
             rospy.logwarn("Piece not detected at adjusted position.")
-            control_magnet(True)
+            control_magnet(False)
             rospy.sleep(1)
     rospy.logwarn("Failed to place piece correctly after adjustments.")
     return False
