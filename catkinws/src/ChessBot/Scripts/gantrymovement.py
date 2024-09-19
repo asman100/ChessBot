@@ -13,35 +13,37 @@ Home = f"{10},{200}"
 
 # Global variables for sensor readings
 sensor_lock = threading.Lock()
-sensor_readings = [[0] * 8 for _ in range(8)]  # Initialize as 8x8 grid
+sensor_readings = []  # Flat list of 64 elements
 
 
 def sensor_array_callback(msg):
     global sensor_readings
-    data = msg.data
     with sensor_lock:
-        # Convert flat list to 8x8 grid
-
-        sensor_readings = [data[i : i + 8] for i in range(0, 64, 8)]
+        sensor_readings = list(msg.data)  # Store the flat list directly
+        # Debug: Print sensor readings if needed
+        # rospy.loginfo(f"Sensor Readings: {sensor_readings}")
 
 
 def check_piece_placement(square):
     with sensor_lock:
-        x, y = chess_square_to_indices(square)
-        rospy.loginfo(f"Checking sensor value at {square} ({x}, {y})")
-        sensor_value = sensor_readings[y][x]
+        index = chess_square_to_index(square)
+        rospy.loginfo(f"Checking sensor value at {square} (index {index})")
+        sensor_value = sensor_readings[index]
         rospy.loginfo(f"Sensor value at {square}: {sensor_value}")
     return sensor_value == 1
 
 
-def chess_square_to_indices(square):
-    # Adjust the mapping based on your board orientation
+def chess_square_to_index(square):
+    # Method 3: index = (7 - rank_index) * 8 + file_index
     file_map = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     file = square[0]
-    rank = int(square[1]) - 1
-    x = file_map[file]
-    y = rank
-    return x, y
+    rank = int(square[1])  # Ranks from 1 to 8
+
+    file_index = file_map[file]
+    rank_index = rank - 1  # Adjusted mapping
+
+    index = (7 - rank_index) * 8 + file_index
+    return index
 
 
 def gantry_state_callback(msg):
