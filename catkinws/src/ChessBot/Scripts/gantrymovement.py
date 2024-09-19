@@ -254,7 +254,7 @@ def posextractor(move):
 
 
 def chess_position_to_coordinates(pos):
-    J = 50
+    J = 54
     Z = 80
     file_map = {"a": 7, "b": 6, "c": 5, "d": 4, "e": 3, "f": 2, "g": 1, "h": 0}
     file = pos[0]

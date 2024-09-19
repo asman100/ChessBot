@@ -187,8 +187,9 @@ def end_turn_callback(data):
             elif move_validated == "invalid":
                 rospy.logwarn(f"Move {uci_move} was invalid!")
                 # Restore piece_board to its previous state
-                piece_board = [row[:] for row in temp_piece_board]
+                # piece_board = [row[:] for row in temp_piece_board]
                 old_piece_board = [row[:] for row in temp_old_piece_board]
+                print_board(old_piece_board)
 
         else:
             rospy.logwarn("No valid move detected!")
