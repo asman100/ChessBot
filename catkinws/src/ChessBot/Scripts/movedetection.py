@@ -377,6 +377,8 @@ def chessboard_callback(data):
                         piece_positions[(row, col)] = piece
         # Update saved_board_state
         saved_board_state = new_board_state
+        piece_board = reconstruct_piece_board(piece_positions)
+        publish_piece_board()
         print_board(piece_positions)
         return  # Exit the function since the game hasn't started yet
 
