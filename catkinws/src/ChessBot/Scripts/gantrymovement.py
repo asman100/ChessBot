@@ -16,20 +16,24 @@ sensor_lock = threading.Lock()
 sensor_readings = []  # Flat list of 64 elements
 
 
+data_updated = threading.Event()
+
+
 def sensor_array_callback(msg):
     global sensor_readings
     with sensor_lock:
-        sensor_readings = list(msg.data)  # Store the flat list directly
-        # Debug: Print sensor readings if needed
-        # rospy.loginfo(f"Sensor Readings: {sensor_readings}")
+        sensor_readings = list(msg.data)
+        data_updated.set()  # Signal that new data is available
 
 
 def check_piece_placement(square):
+    # Wait for new data if necessary
+    if not data_updated.is_set():
+        data_updated.wait(timeout=1)  # Wait up to 1 second
     with sensor_lock:
         index = chess_square_to_index(square)
-        rospy.loginfo(f"Checking sensor value at {square} (index {index})")
         sensor_value = sensor_readings[index]
-        rospy.loginfo(f"Sensor value at {square}: {sensor_value}")
+    data_updated.clear()  # Reset the event for the next update
     return sensor_value == 1
 
 
@@ -100,11 +104,14 @@ def attempt_piece_placement(goal_pos, end_square):
         goal_string = f"{new_x},{new_y}"
         rospy.loginfo(f"Attempt {attempt+1}: Moving to adjusted position {goal_string}")
         move_gantry(goal_string)
+        # Wait for gantry to finish moving
         while botstate == "Moving":
-            pass
+            rospy.sleep(0.1)  # Avoid busy waiting
         rospy.sleep(1)
         control_magnet(False)
         rospy.sleep(2)
+        # Wait for new sensor data
+        data_updated.wait(timeout=1)
         if check_piece_placement(end_square):
             rospy.loginfo("Piece correctly placed.")
             return True
