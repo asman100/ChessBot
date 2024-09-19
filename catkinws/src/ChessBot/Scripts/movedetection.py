@@ -334,6 +334,16 @@ def pos_to_square(pos):
     return f"{file_map[col]}{rank_map[row]}"
 
 
+def print_board(piece_positions):
+    board = [[" " for _ in range(8)] for _ in range(8)]
+    for pos, piece in piece_positions.items():
+        row, col = pos
+        board[row][col] = piece
+    print("Current Board:")
+    for row in board:
+        print(" ".join(row))
+
+
 def chessboard_callback(data):
     global saved_board_state, piece_positions, game_started, initial_piece_board
 
@@ -504,12 +514,6 @@ def endgame_callback(msg):
 def print_boardstate(board):
     for row in board:
         print(row)
-    print("\n")
-
-
-def print_board(board):
-    for row in board:
-        print(" ".join(row))
     print("\n")
 
 
