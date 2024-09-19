@@ -552,15 +552,6 @@ def convert_piece_board_to_array(piece_board):
     return flat_board
 
 
-def publish_piece_board(piece_board):
-    global pieceboard_pub
-    board_array = convert_piece_board_to_array(piece_board)
-    msg = Int32MultiArray()
-    msg.data = board_array
-    pieceboard_pub.publish(msg)
-    rospy.loginfo("Piece board published.")
-
-
 def checkboard_callback(data):
     publish_piece_board()
 
