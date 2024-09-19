@@ -345,7 +345,7 @@ def print_board(piece_positions):
 
 
 def chessboard_callback(data):
-    global saved_board_state, piece_positions, game_started, initial_piece_board
+    global saved_board_state, piece_positions, game_started, initial_piece_board, piece_board
 
     sensor_array = data.data
     new_board_state_flat = sensor_array
@@ -502,6 +502,7 @@ def chessboard_callback(data):
 
     # Update saved_board_state
     saved_board_state = new_board_state
+    piece_board = reconstruct_piece_board(piece_positions)
     print_board(piece_positions)
 
 
@@ -515,6 +516,47 @@ def print_boardstate(board):
     for row in board:
         print(row)
     print("\n")
+
+
+def reconstruct_piece_board(piece_positions):
+    # Create an empty board
+    piece_board = [[" " for _ in range(8)] for _ in range(8)]
+    for pos, piece in piece_positions.items():
+        row, col = pos
+        piece_board[row][col] = piece
+    return piece_board
+
+
+def convert_piece_board_to_array(piece_board):
+    piece_map = {
+        "r": -6,
+        "n": -5,
+        "b": -4,
+        "q": -3,
+        "k": -2,
+        "p": -1,  # Black pieces
+        "R": 6,
+        "N": 5,
+        "B": 4,
+        "Q": 3,
+        "K": 2,
+        "P": 1,  # White pieces
+        " ": 0,  # Empty squares
+    }
+    flat_board = []
+    for row in piece_board:
+        for piece in row:
+            flat_board.append(piece_map.get(piece, 0))
+    return flat_board
+
+
+def publish_piece_board(piece_board):
+    global pieceboard_pub
+    board_array = convert_piece_board_to_array(piece_board)
+    msg = Int32MultiArray()
+    msg.data = board_array
+    pieceboard_pub.publish(msg)
+    rospy.loginfo("Piece board published.")
 
 
 def checkboard_callback(data):
