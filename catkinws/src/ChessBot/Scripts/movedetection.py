@@ -196,61 +196,61 @@ def end_turn_callback(data):
 
 
 def detect_move_uci():
-    global old_piece_board, piece_board
+    global old_piece_board, piece_board, current_turn
 
     start_pos = None
     end_pos = None
+    moved_piece = None
 
     # Compare old and current board states to detect the move
     for row in range(8):
         for col in range(8):
-            # Piece removed (start position)
-            if old_piece_board[row][col] != " " and piece_board[row][col] == " ":
-                start_pos = (row, col)
-            # Piece placed (end position)
-            elif old_piece_board[row][col] == " " and piece_board[row][col] != " ":
-                end_pos = (row, col)
+            old_piece = old_piece_board[row][col]
+            new_piece = piece_board[row][col]
+            if old_piece != new_piece:
+                # Piece moved away from this square (start position)
+                if old_piece != " " and new_piece == " ":
+                    if is_piece_color(old_piece, current_turn):
+                        start_pos = (row, col)
+                        moved_piece = old_piece
+                # Piece moved to this square (end position)
+                elif old_piece == " " and new_piece != " ":
+                    if is_piece_color(new_piece, current_turn):
+                        end_pos = (row, col)
+                # Capture occurred
+                elif old_piece != " " and new_piece != " ":
+                    # The piece at this square has changed
+                    if is_piece_color(old_piece, current_turn):
+                        start_pos = (row, col)
+                        moved_piece = old_piece
+                    if is_piece_color(new_piece, current_turn):
+                        end_pos = (row, col)
 
     # Detect castling explicitly using both the king's and rook's movements
-    # White kingside castling (e1 to g1 and rook moves from h1 to f1)
-    if (
-        start_pos == (7, 4)
-        and end_pos == (7, 6)
-        and piece_board[7][5] == "R"
-        and piece_board[7][6] == "K"
-    ):
-        rospy.loginfo("White kingside castling detected")
-        return "e1g1"
-
-    # White queenside castling (e1 to c1 and rook moves from a1 to d1)
-    elif (
-        start_pos == (7, 4)
-        and end_pos == (7, 2)
-        and piece_board[7][3] == "R"
-        and piece_board[7][2] == "K"
-    ):
-        rospy.loginfo("White queenside castling detected")
-        return "e1c1"
-
-    # Black kingside castling (e8 to g8 and rook moves from h8 to f8)
-    elif (
-        start_pos == (0, 4)
-        and end_pos == (0, 6)
-        and piece_board[0][5] == "r"
-        and piece_board[0][6] == "k"
-    ):
-        rospy.loginfo("Black kingside castling detected")
-        return "e8g8"
-
-    # Black queenside castling (e8 to c8 and rook moves from a8 to d8)
-    elif (
-        start_pos == (0, 4)
-        and end_pos == (0, 2)
-        and piece_board[0][3] == "r"
-        and piece_board[0][2] == "k"
-    ):
-        rospy.loginfo("Black queenside castling detected")
-        return "e8c8"
+    # White kingside castling (e1 to g1)
+    if current_turn == "w" and moved_piece == "K":
+        if start_pos == (7, 4) and end_pos == (7, 6):
+            if old_piece_board[7][7] == "R" and piece_board[7][5] == "R":
+                rospy.loginfo("White kingside castling detected")
+                return "e1g1"
+    # White queenside castling (e1 to c1)
+    if current_turn == "w" and moved_piece == "K":
+        if start_pos == (7, 4) and end_pos == (7, 2):
+            if old_piece_board[7][0] == "R" and piece_board[7][3] == "R":
+                rospy.loginfo("White queenside castling detected")
+                return "e1c1"
+    # Black kingside castling (e8 to g8)
+    if current_turn == "b" and moved_piece == "k":
+        if start_pos == (0, 4) and end_pos == (0, 6):
+            if old_piece_board[0][7] == "r" and piece_board[0][5] == "r":
+                rospy.loginfo("Black kingside castling detected")
+                return "e8g8"
+    # Black queenside castling (e8 to c8)
+    if current_turn == "b" and moved_piece == "k":
+        if start_pos == (0, 4) and end_pos == (0, 2):
+            if old_piece_board[0][0] == "r" and piece_board[0][3] == "r":
+                rospy.loginfo("Black queenside castling detected")
+                return "e8c8"
 
     # Default behavior for normal moves
     if start_pos and end_pos:
@@ -258,6 +258,16 @@ def detect_move_uci():
 
     rospy.logwarn("Move detection failed: start or end position not found.")
     return None
+
+
+def is_piece_color(piece, color):
+    if piece == " ":
+        return False
+    if color == "w":
+        return piece.isupper()
+    elif color == "b":
+        return piece.islower()
+    return False
 
 
 def convert_to_uci(start_pos, end_pos):
