@@ -15,6 +15,10 @@ piece_board = [
     ["P", "P", "P", "P", "P", "P", "P", "P"],  # White pawns (row 2)
     ["R", "N", "B", "Q", "K", "B", "N", "R"],  # White pieces (row 1)
 ]
+# Global variables
+turn_start_piece_board = [
+    row[:] for row in piece_board
+]  # Board at the start of the current turn
 
 old_piece_board = [row[:] for row in piece_board]  # Old state of the board to compare
 temp_old_piece_board = [row[:] for row in piece_board]
@@ -131,7 +135,10 @@ def move_validation_callback(msg):
 
 
 def end_turn_callback(data):
-    global old_piece_board, piece_board, current_turn, uci_move, move_validated, temp_old_piece_board, game_started
+    global old_piece_board, piece_board, current_turn, uci_move, move_validated
+    global removed_white_pieces, removed_white_positions
+    global removed_black_pieces, removed_black_positions
+    global game_started
 
     if not game_started:
         rospy.logwarn("Game has not started yet!")
@@ -169,6 +176,11 @@ def end_turn_callback(data):
                 rospy.loginfo(f"Move {uci_move} was valid!")
                 # Update old_piece_board only after move validation
                 old_piece_board = [row[:] for row in piece_board]
+                # Clear the removed pieces lists
+                removed_white_pieces.clear()
+                removed_white_positions.clear()
+                removed_black_pieces.clear()
+                removed_black_positions.clear()
                 current_turn = "b" if current_turn == "w" else "w"
                 rospy.loginfo(f"Current turn: {current_turn}")
 
@@ -177,6 +189,7 @@ def end_turn_callback(data):
                 # Restore piece_board to its previous state
                 piece_board = [row[:] for row in temp_piece_board]
                 old_piece_board = [row[:] for row in temp_old_piece_board]
+
         else:
             rospy.logwarn("No valid move detected!")
 
