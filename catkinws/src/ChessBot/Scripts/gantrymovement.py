@@ -9,6 +9,7 @@ position_pub = rospy.Publisher("/position", String, queue_size=10)
 bot_status_pub = rospy.Publisher("/botmovestatus", String, queue_size=10)
 botstate = "Idle"
 capture = False
+castling = False
 Home = f"{10},{200}"
 
 # Global variables for sensor readings
@@ -124,7 +125,7 @@ def attempt_piece_placement(goal_pos, end_square):
 
 
 def moveplanner(botmove):
-    global botstate, capture
+    global botstate, capture, castling
     pos, start_square, end_square = posextractor(botmove)
     if botstate != "Idle":
         rospy.logwarn("Gantry is busy. Ignoring bot move command.")
@@ -134,7 +135,97 @@ def moveplanner(botmove):
     botstate = "Moving"
     goal = pos[1]
     start = pos[0]
-    if capture:
+    if castling:
+        # Determine whether it's kingside or queenside castling
+        if start_square[0] == "e" and end_square[0] == "g":
+            # Kingside castling
+            king_start = pos[0]  # King's current position (e1 or e8)
+            king_end = chess_position_to_coordinates(
+                "g" + start_square[1]
+            )  # King's new position (g1 or g8)
+            rook_start = chess_position_to_coordinates(
+                "h" + start_square[1]
+            )  # Rook's current position (h1 or h8)
+            rook_end = chess_position_to_coordinates(
+                "f" + start_square[1]
+            )  # Rook's new position (f1 or f8)
+        elif start_square[0] == "e" and end_square[0] == "c":
+            # Queenside castling
+            king_start = pos[0]  # King's current position (e1 or e8)
+            king_end = chess_position_to_coordinates(
+                "c" + start_square[1]
+            )  # King's new position (c1 or c8)
+            rook_start = chess_position_to_coordinates(
+                "a" + start_square[1]
+            )  # Rook's current position (a1 or a8)
+            rook_end = chess_position_to_coordinates(
+                "d" + start_square[1]
+            )  # Rook's new position (d1 or d8)
+
+        # Move the king
+        goal_string = f"{10},{king_start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        goal_string = f"{king_start[0]},{king_start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        control_magnet(True)
+        rospy.sleep(2)
+        goal_string = f"{king_start[0]},{king_start[1]+25}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        goal_string = f"{king_end[0]},{king_end[1]+25}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        goal_string = f"{king_end[0]},{king_end[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        control_magnet(False)
+
+        # Move the rook
+        goal_string = f"{10},{rook_start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        goal_string = f"{rook_start[0]},{rook_start[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        control_magnet(True)
+        rospy.sleep(2)
+        goal_string = f"{rook_start[0]},{rook_start[1]+25}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        goal_string = f"{rook_end[0]},{rook_end[1]+25}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        goal_string = f"{rook_end[0]},{rook_end[1]}"
+        move_gantry(goal_string)
+        while botstate == "Moving":
+            pass
+        rospy.sleep(2)
+        control_magnet(False)
+
+        rospy.sleep(2)
+        move_gantry(Home)
+        botstate = "Idle"
+        bot_status_pub.publish("confirmed")
+        return
+    elif capture:
         # Capture sequence...
         goal_string = f"{10},{goal[1]}"
         move_gantry(goal_string)
@@ -241,10 +332,11 @@ def moveplanner(botmove):
 
 
 def posextractor(move):
-    global capture
+    global capture, castling
     move_parts = move.split()
     uci_move = move_parts[0]
     capture = move_parts[1] == "True"
+    castling = move_parts[2] == "True"
     start_square = uci_move[:2]
     end_square = uci_move[-2:]
     startpos = chess_position_to_coordinates(start_square)

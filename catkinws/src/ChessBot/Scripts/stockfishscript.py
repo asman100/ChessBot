@@ -179,10 +179,15 @@ def make_bot_move():
     )  # Bot move with 2 seconds of analysis
     bot_move = result.move
     is_capture = chess_board.is_capture(bot_move)
-    rospy.loginfo(f"Bot move: {bot_move.uci()} (Capture: {is_capture})")
+    is_castling = bot_move.is_castling()
+
+    # Log the bot move, capture, and castling status
+    rospy.loginfo(
+        f"Bot move: {bot_move.uci()} (Capture: {is_capture}, Castling: {is_castling})"
+    )
     bot_move_pub.publish(
-        f"{bot_move.uci()} {is_capture}"
-    )  # Publish the move, but don't apply it to the board yet
+        f"{bot_move.uci()} {is_capture} {is_castling}"
+    )  # Publish the move, capture, and castling status
 
     # Wait for external confirmation of the bot's move
     bot_move_confirmed = False
@@ -192,6 +197,7 @@ def make_bot_move():
     while not bot_move_confirmed:
         rospy.sleep(0.1)  # Small delay to prevent busy-waiting
     endturn_pub.publish("endturn")
+
     # After confirmation, check if the game is over
     check_game_over()
 
