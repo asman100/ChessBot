@@ -146,6 +146,7 @@ def moveplanner(botmove):
             rook_start = chess_position_to_coordinates(
                 "h" + start_square[1]
             )  # Rook's current position (h1 or h8)
+            rookendsquare = "f" + start_square[1]
             rook_end = chess_position_to_coordinates(
                 "f" + start_square[1]
             )  # Rook's new position (f1 or f8)
