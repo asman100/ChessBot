@@ -179,7 +179,7 @@ def make_bot_move():
     )  # Bot move with 2 seconds of analysis
     bot_move = result.move
     is_capture = chess_board.is_capture(bot_move)
-    is_castling = bot_move.is_castling()
+    is_castling = chess_board.is_castling(bot_move)
 
     # Log the bot move, capture, and castling status
     rospy.loginfo(
