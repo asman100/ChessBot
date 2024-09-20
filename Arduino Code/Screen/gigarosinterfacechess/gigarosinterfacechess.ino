@@ -9,7 +9,7 @@ static BUTTON_Handle hWhiteButton, hBlackButton, hRandomButton, hConfirmButton, 
 static TEXT_Handle hStatusText, hEndgameText, hbotdifficultytext;
 static bool inLoadingScreen = false;  // Track whether we're in the loading screen
 static char endgameMessage[100] = "Game Over";  // Variable to store endgame message
-
+volatile bool endgameReceived = false;
 // ROS NodeHandle and Publishers
 ros::NodeHandle nh;
 std_msgs::String msg;
@@ -39,9 +39,9 @@ ros::Subscriber<std_msgs::String> gamestatus_sub("gamestatus", [](const std_msgs
 
 // Subscription for endgame topic
 void endgameCallback(const std_msgs::String& endgame_msg) {
-    strncpy(endgameMessage, endgame_msg.data, sizeof(endgameMessage) - 1);  // Copy the message
-    WM_DeleteWindow(hPlayingScreen);  // Remove the playing screen
-    hEndgameScreen = WM_CreateWindowAsChild(0, 0, LCD_GetXSize(), LCD_GetYSize(), WM_HBKWIN, WM_CF_SHOW, _cbEndgameScreen, 0);  // Show the endgame screen
+    strncpy(endgameMessage, endgame_msg.data, sizeof(endgameMessage) - 1);
+    endgameMessage[sizeof(endgameMessage) - 1] = '\0';  // Ensure null termination
+    endgameReceived = true;
 }
 ros::Subscriber<std_msgs::String> endgame_sub("endgame", &endgameCallback);
 
@@ -432,6 +432,21 @@ void setup() {
 
 void loop() {
     nh.spinOnce();
+
+    if (endgameReceived) {
+        endgameReceived = false;  // Reset the flag
+
+        // Safely remove the playing screen
+        if (hPlayingScreen) {
+            WM_DeleteWindow(hPlayingScreen);
+            hPlayingScreen = 0;  // Reset the handle
+        }
+
+        // Create the endgame screen in the main thread
+        hEndgameScreen = WM_CreateWindowAsChild(0, 0, LCD_GetXSize(), LCD_GetYSize(),
+                                                WM_HBKWIN, WM_CF_SHOW, _cbEndgameScreen, 0);
+    }
+
     GUI_Exec();
     GUI_Delay(50);
 }
