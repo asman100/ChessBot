@@ -5,17 +5,17 @@
     <node name="gantry" pkg="ChessBot" type="gantrymovement.py" output="screen" />
   <node name="R4" pkg="rosserial_python" type="serial_node.py" output="screen">
     <param name="port" value="/dev/ttyACM2" />
-     <!-- Adjust baud rate as necessary -->
+     
   </node>
     <!-- Launch testmovedetect.py -->
     <node name="movedetect" pkg="ChessBot" type="movedetection.py" output="screen" />
       <node name="Mega" pkg="rosserial_python" type="serial_node.py" output="screen">
     <param name="port" value="/dev/ttyACM1" />
-    <param name="baud" value="115200" /> <!-- Adjust baud rate as necessary -->
+    
   </node>
     <node name="Giga" pkg="rosserial_python" type="serial_node.py" output="screen">
     <param name="port" value="/dev/ttyACM0" />
-    <param name="baud" value="115200" /> <!-- Adjust baud rate as necessary -->
+    
   </node>
 
 
