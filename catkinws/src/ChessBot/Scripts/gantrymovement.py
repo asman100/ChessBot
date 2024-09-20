@@ -196,15 +196,11 @@ def moveplanner(botmove):
         if not success:
             rospy.logwarn("Failed to place piece correctly.")
         # Move the rook
-        goal_string = f"{10},{rook_start[1]}"
-        move_gantry(goal_string)
-        while botstate == "Moving":
-            pass
-        rospy.sleep(2)
         goal_string = f"{rook_start[0]},{rook_start[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
+        rospy.sleep(2)
         control_magnet(True)
         rospy.sleep(2)
         goal_string = f"{rook_start[0]},{rook_start[1]+25}"
@@ -353,7 +349,7 @@ def posextractor(move):
 
 
 def chess_position_to_coordinates(pos):
-    J = 54
+    J = 50
     Z = 80
     file_map = {"a": 7, "b": 6, "c": 5, "d": 4, "e": 3, "f": 2, "g": 1, "h": 0}
     file = pos[0]
