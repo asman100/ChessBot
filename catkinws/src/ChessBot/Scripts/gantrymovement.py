@@ -158,6 +158,7 @@ def moveplanner(botmove):
             rook_start = chess_position_to_coordinates(
                 "a" + start_square[1]
             )  # Rook's current position (a1 or a8)
+            rookendsquare = "d" + start_square[1]
             rook_end = chess_position_to_coordinates(
                 "d" + start_square[1]
             )  # Rook's new position (d1 or d8)
@@ -190,7 +191,9 @@ def moveplanner(botmove):
             pass
         rospy.sleep(2)
         control_magnet(False)
-
+        success = attempt_piece_placement(king_end, end_square)
+        if not success:
+            rospy.logwarn("Failed to place piece correctly.")
         # Move the rook
         goal_string = f"{10},{rook_start[1]}"
         move_gantry(goal_string)
@@ -218,6 +221,9 @@ def moveplanner(botmove):
         while botstate == "Moving":
             pass
         rospy.sleep(2)
+        success = attempt_piece_placement(rook_end, rookendsquare)
+        if not success:
+            rospy.logwarn("Failed to place piece correctly.")
         control_magnet(False)
 
         rospy.sleep(2)
