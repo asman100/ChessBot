@@ -1,9 +1,9 @@
 <launch>
 
         <!-- Launch scripts -->
-    <node name="stockfish" pkg="ChessBot" type="stockfishscript.py" output="screen" />
-    <node name="gantry" pkg="ChessBot" type="gantrymovement.py" output="screen" />
-    <node name="movedetect" pkg="ChessBot" type="movedetection.py" output="screen" />
+    <node name="stockfish" pkg="ChessBot" type="stockfishscript" output="screen" />
+    <node name="gantry" pkg="ChessBot" type="gantrymovement" output="screen" />
+    <node name="movedetect" pkg="ChessBot" type="movedetection" output="screen" />
     <!-- launch serial nodes-->
   <node name="R4" pkg="rosserial_python" type="serial_node.py" output="screen">
     <param name="port" value="/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_559363430343515092B1-if00" />
