@@ -43,6 +43,37 @@ pieceboard_pub = rospy.Publisher("pieceboard", Int32MultiArray, queue_size=10)
 game_started = False  # Track whether the game has started
 
 
+def array_to_piece_board(msg):
+    global piece_board
+    # Define the mapping from integers back to chess piece symbols
+    int_to_piece = {
+        1: "P",
+        -1: "p",  # Pawn
+        2: "N",
+        -2: "n",  # Knight
+        3: "B",
+        -3: "b",  # Bishop
+        4: "R",
+        -4: "r",  # Rook
+        5: "Q",
+        -5: "q",  # Queen
+        6: "K",
+        -6: "k",  # King
+        0: " ",  # Empty square
+    }
+    flat_array = msg.data
+    # Initialize an 8x8 empty board
+    piece_board = [[" " for _ in range(8)] for _ in range(8)]
+    rospy.loginfo("Converting 1D array to 8x8 piece board...")
+    # Fill the 8x8 piece_board from the 1D flat_array
+    for i in range(8):
+        for j in range(8):
+            piece_board[i][j] = int_to_piece[flat_array[i * 8 + j]]
+    # Publish the piece_board
+    publish_piece_board()
+    print_board(piece_board)
+
+
 def reset_game_state():
     global saved_board_state, piece_board, old_piece_board, temp_old_piece_board
     global castling_rights, removed_white_pieces, removed_white_positions
@@ -493,7 +524,7 @@ def main():
     rospy.Subscriber("endgame", String, endgame_callback)
 
     rospy.Subscriber("checkpos", String, checkboard_callback)
-
+    rospy.Subscriber("chessboard_state", Int32MultiArray, array_to_piece_board)
     rospy.Rate(60)
     rospy.spin()
 

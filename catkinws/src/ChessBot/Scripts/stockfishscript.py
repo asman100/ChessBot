@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import String, Int32MultiArray
 import chess
 import chess.engine
 import random
@@ -17,6 +17,7 @@ endgame_pub = rospy.Publisher(
 )  # New publisher for endgame status
 gamestatus_pub = rospy.Publisher("gamestatus", String, queue_size=10)
 endturn_pub = rospy.Publisher("end_turn", String, queue_size=10)
+board_pub = rospy.Publisher("chessboard_state", Int32MultiArray, queue_size=10)
 # Stockfish engine setup
 engine_path = (
     "/home/speed/stockfish/Stockfish/src/stockfish"  # Change this to the correct path
@@ -28,6 +29,48 @@ player_color = None  # Will be 'white' or 'black'
 game_over = False
 stockfish_difficulty = 10  # Default difficulty (mid-level)
 bot_move_confirmed = False  # Tracks whether the bot move was confirmed
+
+
+def board_to_array(board):
+    piece_map = board.piece_map()
+    board_array = [[0 for _ in range(8)] for _ in range(8)]
+
+    piece_to_int = {
+        "P": 1,
+        "p": -1,  # Pawn
+        "N": 2,
+        "n": -2,  # Knight
+        "B": 3,
+        "b": -3,  # Bishop
+        "R": 4,
+        "r": -4,  # Rook
+        "Q": 5,
+        "q": -5,  # Queen
+        "K": 6,
+        "k": -6,  # King
+    }
+
+    for square, piece in piece_map.items():
+        row = 7 - chess.square_rank(square)  # Convert to row (0 to 7)
+        col = chess.square_file(square)  # Convert to column (0 to 7)
+        board_array[row][col] = piece_to_int[piece.symbol()]
+
+    return board_array
+
+
+def publish_chessboard_state():
+    global chess_board
+    board_array = board_to_array(chess_board)
+
+    # Flatten the 8x8 array into a 1D list
+    flat_array = [item for sublist in board_array for item in sublist]
+
+    # Create the ROS message
+    msg = Int32MultiArray()
+    msg.data = flat_array
+
+    # Publish the message
+    board_pub.publish(msg)
 
 
 # Reset the game state for a new game
@@ -62,7 +105,7 @@ def move_callback(msg):
 
             # Check if the game is over after this move
             check_game_over()
-
+            publish_chessboard_state()
             rospy.loginfo(chess_board)
             game_status()
             # If the game is not over, and it's the bot's turn, trigger the bot move
