@@ -126,7 +126,7 @@ def move_callback(msg):
 def game_status():
     global chess_board, game_over
 
-    if chess_board.is_check():
+    if chess_board.is_check() and game_over == False:
         rospy.loginfo("Check!")
         if chess_board.turn == chess.WHITE:
             gamestatus_pub.publish("White Check!")
@@ -134,7 +134,7 @@ def game_status():
         else:
             gamestatus_pub.publish("Black Check!")
             rospy.loginfo("Black is in check.")
-    else:
+    elif game_over == False:
         if chess_board.turn == chess.WHITE:
             gamestatus_pub.publish("White's turn")
             rospy.loginfo("White's turn")
@@ -173,7 +173,7 @@ def surrender_callback(msg):
             f"{'White' if player_color == 'black' else 'Black'} wins by resignation."
         )
         rospy.loginfo(result_message)
-        endgame_pub.publish(result_message)
+        # endgame_pub.publish(result_message)
 
 
 def difficulty_callback(msg):
