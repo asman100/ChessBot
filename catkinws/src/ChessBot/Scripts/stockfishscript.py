@@ -12,9 +12,7 @@ chess_board = chess.Board()
 # Publishers
 move_validation_pub = rospy.Publisher("movevalidation", String, queue_size=10)
 bot_move_pub = rospy.Publisher("botmoves", String, queue_size=10)
-endgame_pub = rospy.Publisher(
-    "endgame", String, queue_size=10
-)  # New publisher for endgame status
+endgame_pub = rospy.Publisher("endgame", String, queue_size=10)
 gamestatus_pub = rospy.Publisher("gamestatus", String, queue_size=10)
 endturn_pub = rospy.Publisher("end_turn", String, queue_size=10)
 board_pub = rospy.Publisher("chessboard_state", Int32MultiArray, queue_size=10)
@@ -238,7 +236,7 @@ def make_bot_move():
 
     # Loop until confirmation is received
     while not bot_move_confirmed:
-        rospy.sleep(0.1)  # Small delay to prevent busy-waiting
+        rospy.sleep(0.1)
     endturn_pub.publish("endturn")
 
     # After confirmation, check if the game is over

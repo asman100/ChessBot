@@ -12,9 +12,9 @@ capture = False
 castling = False
 Home = f"{10},{200}"
 
-# Global variables for sensor readings
+
 sensor_lock = threading.Lock()
-sensor_readings = []  # Flat list of 64 elements
+sensor_readings = []
 
 
 data_updated = threading.Event()
@@ -39,13 +39,13 @@ def check_piece_placement(square):
 
 
 def chess_square_to_index(square):
-    # Method 3: index = (7 - rank_index) * 8 + file_index
+
     file_map = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     file = square[0]
-    rank = int(square[1])  # Ranks from 1 to 8
+    rank = int(square[1])
 
     file_index = file_map[file]
-    rank_index = rank - 1  # Adjusted mapping
+    rank_index = rank - 1
 
     index = (7 - rank_index) * 8 + file_index
     return index
@@ -107,7 +107,7 @@ def attempt_piece_placement(goal_pos, end_square):
         move_gantry(goal_string)
         # Wait for gantry to finish moving
         while botstate == "Moving":
-            rospy.sleep(0.1)  # Avoid busy waiting
+            rospy.sleep(0.1)
         rospy.sleep(1)
         control_magnet(False)
         rospy.sleep(2)
@@ -244,15 +244,15 @@ def moveplanner(botmove):
         # Separate movement for captured piece
         rospy.loginfo("Executing capture move")
 
-        # Step 1: Remove the captured piece
+        #  Remove the captured piece
         rospy.loginfo("Removing captured piece")
-        # Move above the captured piece
+
         goal_string = f"{0},{goal[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
             pass
         rospy.sleep(2)
-        # Lower to the captured piece
+
         goal_string = f"{goal[0]},{goal[1]}"
         move_gantry(goal_string)
         while botstate == "Moving":
@@ -538,7 +538,6 @@ def moveplanner(botmove):
         else:
             rospy.loginfo("Executing default move sequence")
             # Default movement sequence for other moves (e.g., knight moves)
-            # Move to an intermediate safe position
             goal_string = f"{10},{start[1]}"
             move_gantry(goal_string)
             while botstate == "Moving":
@@ -601,7 +600,8 @@ def posextractor(move):
 
 
 def chess_position_to_coordinates(pos):
-    J = 50
+    # extracts the x,y coordinates from the chess position
+    J = 54
     Z = 80
     file_map = {"a": 7, "b": 6, "c": 5, "d": 4, "e": 3, "f": 2, "g": 1, "h": 0}
     file = pos[0]

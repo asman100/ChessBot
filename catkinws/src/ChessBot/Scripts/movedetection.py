@@ -190,7 +190,6 @@ def end_turn_callback(data):
         else:
             # Detect and validate a normal move
             uci_move = detect_move_uci()
-            # Do not update old_piece_board here
 
         # Publish the detected UCI move
         if uci_move:
